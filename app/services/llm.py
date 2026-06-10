@@ -7,11 +7,13 @@ from app.models.schemas import CompletionRequest, CompletionResponse
 
 class LLMTimeoutError(Exception):
     """Raised when the LLM call times out."""
+
     pass
 
 
 class LLMRateLimitError(Exception):
     """Raised when the LLM provider rate-limits us."""
+
     pass
 
 

@@ -49,6 +49,7 @@ class RateLimiter:
 
 # Shared instance — same limiter used by every endpoint
 from app.config import config
+
 rate_limiter = RateLimiter(
     max_requests=config.rate_limit_per_minute,
     window_seconds=60,

@@ -15,7 +15,10 @@ user_id_var: ContextVar[str] = ContextVar("user_id", default="anonymous")
 # Patterns: email, US phone (any common format), credit card numbers
 PII_PATTERNS = [
     (re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"), "[REDACTED_EMAIL]"),
-    (re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"), "[REDACTED_PHONE]"),
+    (
+        re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"),
+        "[REDACTED_PHONE]",
+    ),
     (re.compile(r"\b(?:\d[ -]*?){13,16}\b"), "[REDACTED_CARD]"),
 ]
 
@@ -30,6 +33,7 @@ def redact_pii(text: str) -> str:
 
 
 # ─── JSON Formatter ─────────────────────────────────────────────────────────
+
 
 class JSONFormatter(logging.Formatter):
     """Format every log line as JSON with PII redaction on string values."""
