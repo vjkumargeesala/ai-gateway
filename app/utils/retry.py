@@ -27,6 +27,7 @@ def retry_with_backoff(
         max_delay_seconds: Cap on the wait time between retries.
         retry_on: Tuple of exception types that should trigger a retry.
     """
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
@@ -39,24 +40,28 @@ def retry_with_backoff(
                     if attempt == max_attempts:
                         logger.error(
                             "retry_exhausted",
-                            extra={"extra_fields": {
-                                "function": func.__name__,
-                                "attempts": attempt,
-                                "error": str(e),
-                                "error_type": type(e).__name__,
-                            }},
+                            extra={
+                                "extra_fields": {
+                                    "function": func.__name__,
+                                    "attempts": attempt,
+                                    "error": str(e),
+                                    "error_type": type(e).__name__,
+                                }
+                            },
                         )
                         raise
 
                     wait = min(delay, max_delay_seconds)
                     logger.warning(
                         "retry_attempt",
-                        extra={"extra_fields": {
-                            "function": func.__name__,
-                            "attempt": attempt,
-                            "next_wait_seconds": wait,
-                            "error": str(e),
-                        }},
+                        extra={
+                            "extra_fields": {
+                                "function": func.__name__,
+                                "attempt": attempt,
+                                "next_wait_seconds": wait,
+                                "error": str(e),
+                            }
+                        },
                     )
                     await asyncio.sleep(wait)
                     delay *= 2  # Exponential growth
@@ -65,4 +70,5 @@ def retry_with_backoff(
             raise RuntimeError("retry loop exited without return or raise")
 
         return wrapper  # type: ignore
+
     return decorator
