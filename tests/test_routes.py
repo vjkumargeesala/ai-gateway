@@ -192,11 +192,16 @@ def test_pii_redacted_in_logs(client, alice_headers):
     from app.utils.logging import JSONFormatter
 
     # Attach a temporary in-memory handler with the same JSONFormatter
-    # the real app uses. This captures exactly what would be written to stdout.
+    # the real app uses, and force INFO level so it works regardless of
+    # the environment's LOG_LEVEL setting.
     buffer = io.StringIO()
     handler = logging.StreamHandler(buffer)
     handler.setFormatter(JSONFormatter())
+    handler.setLevel(logging.INFO)
+
     root = logging.getLogger()
+    original_level = root.level
+    root.setLevel(logging.INFO)
     root.addHandler(handler)
 
     pii_prompt = "Contact alice@example.com or 555-123-4567"
@@ -220,6 +225,7 @@ def test_pii_redacted_in_logs(client, alice_headers):
         assert "[REDACTED_PHONE]" in log_output
     finally:
         root.removeHandler(handler)
+        root.setLevel(original_level)
 
 
 # ─── OpenAPI documentation ───────────────────────────────────────────────────
