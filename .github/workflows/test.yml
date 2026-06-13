@@ -1,0 +1,41 @@
+name: Test and Lint
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Check formatting with black
+        run: black --check app/ tests/
+
+      - name: Type check with mypy
+        run: mypy app/ --ignore-missing-imports
+
+      - name: Run tests with coverage
+        env:
+          APP_ENV: ci
+          LOG_LEVEL: WARNING
+          API_KEYS: ci-key-alice:alice,ci-key-bob:bob,ci-key-charlie:charlie
+          RATE_LIMIT_PER_MINUTE: 100
+          LLM_FAIL_RATE: 0.0
+          LLM_LATENCY_MS: 0
+        run: pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=80
+
+      - name: Build Docker image
+        run: docker build -t ai-gateway:test .

@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - LOG_LEVEL=INFO
+      - API_KEYS=dev-key-alice:alice,dev-key-bob:bob,dev-key-charlie:charlie
+      - RATE_LIMIT_PER_MINUTE=100
+      - LLM_FAIL_RATE=0.0
+      - LLM_LATENCY_MS=200
+    restart: unless-stopped
